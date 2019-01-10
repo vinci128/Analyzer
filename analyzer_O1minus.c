@@ -155,15 +155,16 @@ C_unc[l][t] = sqrt(C_unc[l][t]/(n_meas-1.));
 
 chdir("/home/vincenzo/Analyzer");
 
-fprintf(O1minusf, "%s ",in_file->d_name);
+
 for(int l=0; l< n_smear;l++ ){
+  fprintf(O1minusf, "%s ",in_file->d_name);
+  fprintf(O1minusf, "%d ",l);
 for (int t = 0; t < T; t++) {
 fprintf(O1minusf, "%f ",C_avg[l][t] );
 fprintf(O1minusf, "%f ",C_unc[l][t] );
 }
 fprintf(O1minusf, "\n" );
 }
-fprintf(O1minusf, "\n" );
 }
 
 fclose(O1minusf);
