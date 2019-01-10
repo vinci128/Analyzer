@@ -94,7 +94,7 @@ for (int t = 0; t < T; t++) {
  C[l][j][t] =0;
 
   for (int k = 0; k < 3; k++) {
-    fread(&Br[j][t][k],sizeof(double),1,entry_file);
+    fread(&Br[j][l][t][k],sizeof(double),1,entry_file);
 
   }
 }
@@ -104,22 +104,24 @@ for (int t = 0; t < T; t++) {
     for (int t1 = 0; t1 < T; t1++){
       int t_pr = t1 +t;
 if(t_pr > T -1){
-C[j][t] += Br[j][t1][k]*Br[j][t_pr-T][k];
+C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
 //printf("%f\n", C[j][t]);
 
 } else{
-  C[j][t] += Br[j][t1][k]*Br[j][t_pr][k];
+  C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr][k];
 //printf("%f\n", C[j][t]);
 
 }
   }
 //printf("\n");
 }
-C[j][t]  = (double) C[j][t]/T;
+C[l][j][t]  = (double) C[l][j][t]/T;
 }
 
 }
 }
+
+for(int l=0; l< n_smear;l++ ){
 
 for (int t = 0; t < T; t++) {
 //C_avg[t] = average(n_meas,C[t]);
@@ -144,5 +146,21 @@ C_unc[t] += C[j][t]*C[j][t] - C_avg[t]*C_avg[t];
 C_unc[t] = sqrt(C_unc[t]/(n_meas-1.));
 
 }
+}
+
+chdir("/hosts/nashome/vaf/Analyzer");
+
+fprintf(O1minusf, "%s ",in_file->d_name);
+for(int l=0; l< n_smear;l++ ){
+for (int t = 0; t < T; t++) {
+fprintf(O1minusf, "%f ",C_avg[t] );
+fprintf(O1minusf, "%f ",C_unc[t] );
+}
+fprintf(O1minusf, "\n" );
+}
+fprintf(O1minusf, "\n" );
+}
+
+fclose(O1minusf);
 
 }
