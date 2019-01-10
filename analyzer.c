@@ -257,6 +257,7 @@ if (O1minusf == NULL)
           size = st.st_size;
 
           int T;
+          int n_smear =5;
 
           if(in_file->d_name[9] == 52)(T=4);
           if(in_file->d_name[9] == 54)(T=6);
@@ -267,20 +268,22 @@ if (O1minusf == NULL)
 
           double B[T][3];
 
-          n_meas = (int) size/ (sizeof(B));
+          n_meas = (int) size/ (sizeof(B)*n_smear);
 
           //Br = (double*)calloc(n_meas, sizeof(B));
-          double Br[n_meas][T][3];
-          double C[n_meas][T];
-          double C_avg[T];
-          double C_unc[T];
+          double Br[n_meas][n_smear][T][3];
+          double C[n_meas][n_smear][T];
+          double C_avg[n_smear][T];
+          double C_unc[n_smear][T];
 
 printf("b\n" );
           for(int j =0; j < n_meas; j++){
 //fread(&Br[j], sizeof(B),1,entry_file);
 
+for(int l=0; l< n_smear;l++ ){
+
 for (int t = 0; t < T; t++) {
- C[j][t] =0;
+ C[l][j][t] =0;
 
   for (int k = 0; k < 3; k++) {
     fread(&Br[j][t][k],sizeof(double),1,entry_file);
@@ -307,6 +310,7 @@ C[j][t] += Br[j][t1][k]*Br[j][t_pr-T][k];
 C[j][t]  = (double) C[j][t]/T;
 }
 
+}
 }
 
 for (int t = 0; t < T; t++) {
