@@ -517,7 +517,6 @@ with open('O1minus_results.dat','r') as f:
             biarray[a][j] = array[j]
         a+= 1
 
-#os.mkdir('O1minus')
 
 for i in range(h):
 
