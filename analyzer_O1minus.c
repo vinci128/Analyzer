@@ -79,8 +79,11 @@ if (O1minusf == NULL)
           }
 
           double B[T][3];
+          double T1[T][3];
+          double T2[T][3];
+          double T3[T][3];
 
-          int n_meas = (int) size/ (sizeof(B)*n_smear);
+          int n_meas = (int) size/ (sizeof(B)*n_smear*4);
 
           //Br = (double*)calloc(n_meas, sizeof(B));
           double Br[n_meas][n_smear][T][3];
@@ -88,7 +91,21 @@ if (O1minusf == NULL)
           double C_avg[n_smear][T];
           double C_unc[n_smear][T];
 
-printf("b\n" );
+            double T1r[n_meas][n_smear][T][3];
+          double CT1[n_meas][n_smear][T];
+          double CT1_avg[n_smear][T];
+          double CT1_unc[n_smear][T];
+
+            double T2r[n_meas][n_smear][T][3];
+          double CT2[n_meas][n_smear][T];
+          double CT2_avg[n_smear][T];
+          double CT2_unc[n_smear][T];
+
+            double T3r[n_meas][n_smear][T][3];
+          double CT3[n_meas][n_smear][T];
+          double CT3_avg[n_smear][T];
+          double CT3_unc[n_smear][T];
+
           for(int j =0; j < n_meas; j++){
 //fread(&Br[j], sizeof(B),1,entry_file);
 
@@ -96,10 +113,16 @@ for(int l=0; l< n_smear;l++ ){
 
 for (int t = 0; t < T; t++) {
  C[l][j][t] =0;
+ CT1[l][j][t] =0;
+ CT2[l][j][t] =0;
+ CT3[l][j][t] =0;
 
   for (int k = 0; k < 3; k++) {
     fread(&Br[j][l][t][k],sizeof(double),1,entry_file);
-    printf("%f\n",Br[j][l][t][k] );
+    fread(&T1r[j][l][t][k],sizeof(double),1,entry_file);
+    fread(&T2r[j][l][t][k],sizeof(double),1,entry_file);
+    fread(&T3r[j][l][t][k],sizeof(double),1,entry_file);
+   // printf("%f\n",Br[j][l][t][k] );
 
   }
 }
@@ -110,10 +133,16 @@ for (int t = 0; t < T; t++) {
       int t_pr = t1 +t;
 if(t_pr > T -1){
 C[l][j][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
+CT1[l][j][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr-T][k];
+CT2[l][j][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr-T][k];
+CT3[l][j][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr-T][k];
 //printf("%f\n", C[j][t]);
 
 } else{
   C[l][j][t] += Br[j][l][t1][k]*Br[j][l][t_pr][k];
+  CT1[l][j][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr][k];
+  CT2[l][j][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr][k];
+  CT3[l][j][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr][k];
 //printf("%f\n", C[j][t]);
 
 }
@@ -121,6 +150,9 @@ C[l][j][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
 //printf("\n");
 }
 C[l][j][t]  = (double) C[l][j][t]/T;
+CT1[l][j][t]  = (double) CT1[l][j][t]/T;
+CT2[l][j][t]  = (double) CT2[l][j][t]/T;
+CT3[l][j][t]  = (double) CT3[l][j][t]/T;
 }
 
 }
@@ -134,21 +166,39 @@ for (int t = 0; t < T; t++) {
 //C_unc[t] = sigma0(n_meas,C[t]);
  C_avg[l][t]=0;
  C_unc[l][t]=0;
+ CT1_avg[l][t]=0;
+ CT1_unc[l][t]=0;
+ CT2_avg[l][t]=0;
+ CT2_unc[l][t]=0;
+ CT3_avg[l][t]=0;
+ CT3_unc[l][t]=0;
 
 for(int j =0; j < n_meas; j++){
 C_avg[l][t]+= C[l][j][t];
+CT1_avg[l][t]+= CT1[l][j][t];
+CT2_avg[l][t]+= CT2[l][j][t];
+CT3_avg[l][t]+= CT3[l][j][t];
 }
 
 
 C_avg[l][t] = C_avg[l][t]/ n_meas;
+CT1_avg[l][t] = CT1_avg[l][t]/ n_meas;
+CT2_avg[l][t] = CT2_avg[l][t]/ n_meas;
+CT3_avg[l][t] = CT3_avg[l][t]/ n_meas;
 
 for(int j =0; j < n_meas; j++){
 C_unc[l][t] += C[l][j][t]*C[l][j][t] - C_avg[l][t]*C_avg[l][t];
+CT1_unc[l][t] += CT1[l][j][t]*CT1[l][j][t] - CT1_avg[l][t]*CT1_avg[l][t];
+CT2_unc[l][t] += CT2[l][j][t]*CT2[l][j][t] - CT2_avg[l][t]*CT2_avg[l][t];
+CT3_unc[l][t] += CT3[l][j][t]*CT3[l][j][t] - CT3_avg[l][t]*CT3_avg[l][t];
 
 }
 //printf("C_avg[%d]: %f\n",t,cavg );
 
 C_unc[l][t] = sqrt(C_unc[l][t]/(n_meas-1.));
+CT1_unc[l][t] = sqrt(CT1_unc[l][t]/(n_meas-1.));
+CT2_unc[l][t] = sqrt(CT2_unc[l][t]/(n_meas-1.));
+CT3_unc[l][t] = sqrt(CT3_unc[l][t]/(n_meas-1.));
 
 }
 }
@@ -158,10 +208,47 @@ chdir("/home/vincenzo/Analyzer");
 
 for(int l=0; l< n_smear;l++ ){
   fprintf(O1minusf, "%s ",in_file->d_name);
+  fprintf(O1minusf, "B " );
   fprintf(O1minusf, "%d ",l);
 for (int t = 0; t < T; t++) {
 fprintf(O1minusf, "%f ",C_avg[l][t] );
 fprintf(O1minusf, "%f ",C_unc[l][t] );
+}
+fprintf(O1minusf, "\n" );
+}
+
+
+for(int l=0; l< n_smear;l++ ){
+  fprintf(O1minusf, "%s ",in_file->d_name);
+  fprintf(O1minusf, "T1 " );
+  fprintf(O1minusf, "%d ",l);
+for (int t = 0; t < T; t++) {
+fprintf(O1minusf, "%f ",CT1_avg[l][t] );
+fprintf(O1minusf, "%f ",CT1_unc[l][t] );
+}
+fprintf(O1minusf, "\n" );
+}
+
+
+for(int l=0; l< n_smear;l++ ){
+  fprintf(O1minusf, "%s ",in_file->d_name);
+  fprintf(O1minusf, "T2 " );
+  fprintf(O1minusf, "%d ",l);
+for (int t = 0; t < T; t++) {
+fprintf(O1minusf, "%f ",CT2_avg[l][t] );
+fprintf(O1minusf, "%f ",CT2_unc[l][t] );
+}
+fprintf(O1minusf, "\n" );
+}
+
+
+for(int l=0; l< n_smear;l++ ){
+  fprintf(O1minusf, "%s ",in_file->d_name);
+  fprintf(O1minusf, "T3 " );
+  fprintf(O1minusf, "%d ",l);
+for (int t = 0; t < T; t++) {
+fprintf(O1minusf, "%f ",CT3_avg[l][t] );
+fprintf(O1minusf, "%f ",CT3_unc[l][t] );
 }
 fprintf(O1minusf, "\n" );
 }

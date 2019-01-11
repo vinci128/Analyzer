@@ -15,6 +15,8 @@ def file_len(fname):
 
 h = file_len('O1minus_results.dat')
 
+print(h)
+
 os.makedirs('O1minus', exist_ok=True)
 
 a =0
@@ -28,8 +30,8 @@ with open('O1minus_results.dat','r') as f:
         print(array)
         Nt = int(re.search(r'(.*)Nt(.*)_B',array[0]).group(2))
 
-        w = 2*Nt+2
-        n_smear = int(array[1])
+        w = 2*Nt+3
+        #n_smear = int(array[1])
 
         for i in range(2,w):
             array[i] = float(array[i])
@@ -50,10 +52,12 @@ for i in range(h):
     Tl = list(range(Nt))
     C = list(range(Nt))
     C_unc = list(range(Nt))
+    n_smear = int(biarray[i][2])
+    Op_type = biarray[i][1]
 
     for t in range(Nt):
-        C[t] = biarray[i][2*t+2]
-        C_unc[t] = biarray[i][2*t+3]
+        C[t] = biarray[i][2*t+3]
+        C_unc[t] = biarray[i][2*t+4]
 
     print(Nt,B,K,L)
     print('C=',C)
@@ -61,7 +65,7 @@ for i in range(h):
 
     fig1 = plt.figure()
     axc = fig1.add_subplot(1,1,1)
-    O1minus_path = 'O1minus/B'+str(B)+'K'+str(K)+'L'+str(L)+'n_sm'+str(n_smear)+'.png'
+    O1minus_path = 'O1minus/Nt'+str(Nt)+'B'+str(B)+'K'+str(K)+'L'+str(L)+'n_sm'+str(n_smear)+'Op_'+str(Op_type)+'.png'
     axc.errorbar(Tl,C,yerr=C_unc, fmt='x', markersize=10)
     axc.set_ylabel(r'C(t)')
 #    axc.set_yscale("log")
