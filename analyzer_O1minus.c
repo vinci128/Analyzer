@@ -12,6 +12,10 @@
 
 #include "statistics.h"
 
+void allocate_4d(int count3, int count2, int count1, int count0, double *****data);
+void allocate_3d(int count2, int count1, int count0, double ****data);
+
+
 int main(int argc, char **argv)
 {
   DIR* FD;
@@ -62,7 +66,6 @@ if (O1minusf == NULL)
               return 1;
           }
 
-          printf("a\n" );
 
 
           stat(in_file->d_name, &st);
@@ -85,26 +88,55 @@ if (O1minusf == NULL)
 
           int n_meas = (int) size/ (sizeof(B)*n_smear*4);
 
-          //Br = (double*)calloc(n_meas, sizeof(B));
-          double Br[n_meas][n_smear][T][3];
-          double C[n_meas][n_smear][T];
+          //Br = (double*)malloc(n_meas, sizeof(B));
+          //double Br[n_meas][n_smear][T][3];
+          //double C[n_meas][n_smear][T];
           double C_avg[n_smear][T];
           double C_unc[n_smear][T];
 
-            double T1r[n_meas][n_smear][T][3];
-          double CT1[n_meas][n_smear][T];
+          double ****Br;
+          double ***C;
+
+          allocate_4d(n_meas,n_smear,T,3,&Br);
+          allocate_3d(n_meas,n_smear,T,&C);
+
+
+          //double T1r[n_meas][n_smear][T][3];
+          //double CT1[n_meas][n_smear][T];
           double CT1_avg[n_smear][T];
           double CT1_unc[n_smear][T];
 
-            double T2r[n_meas][n_smear][T][3];
-          double CT2[n_meas][n_smear][T];
+          double ****T1r;
+          double ***CT1;
+
+          allocate_4d(n_meas,n_smear,T,3,&T1r);
+          allocate_3d(n_meas,n_smear,T,&CT1);
+
+
+          //double T2r[n_meas][n_smear][T][3];
+          //double CT2[n_meas][n_smear][T];
           double CT2_avg[n_smear][T];
           double CT2_unc[n_smear][T];
 
-            double T3r[n_meas][n_smear][T][3];
-          double CT3[n_meas][n_smear][T];
+          double ****T2r;
+          double ***CT2;
+
+          allocate_4d(n_meas,n_smear,T,3,&T2r);
+          allocate_3d(n_meas,n_smear,T,&CT2);
+
+
+          //double T3r[n_meas][n_smear][T][3];
+          //double CT3[n_meas][n_smear][T];
           double CT3_avg[n_smear][T];
           double CT3_unc[n_smear][T];
+
+          double ****T3r;
+          double ***CT3;
+
+          allocate_4d(n_meas,n_smear,T,3,&T3r);
+          allocate_3d(n_meas,n_smear,T,&CT3);
+
+          C[0][0][0] =0;
 
           for(int j =0; j < n_meas; j++){
 //fread(&Br[j], sizeof(B),1,entry_file);
@@ -112,10 +144,10 @@ if (O1minusf == NULL)
 for(int l=0; l< n_smear;l++ ){
 
 for (int t = 0; t < T; t++) {
- C[l][j][t] =0;
- CT1[l][j][t] =0;
- CT2[l][j][t] =0;
- CT3[l][j][t] =0;
+ C[j][l][t] =0;
+ CT1[j][l][t] =0;
+ CT2[j][l][t] =0;
+ CT3[j][l][t] =0;
 
   for (int k = 0; k < 3; k++) {
     fread(&Br[j][l][t][k],sizeof(double),1,entry_file);
@@ -132,29 +164,28 @@ for (int t = 0; t < T; t++) {
     for (int t1 = 0; t1 < T; t1++){
       int t_pr = t1 +t;
 if(t_pr > T -1){
-C[l][j][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
-CT1[l][j][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr-T][k];
-CT2[l][j][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr-T][k];
-CT3[l][j][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr-T][k];
+C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
+CT1[j][l][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr-T][k];
+CT2[j][l][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr-T][k];
+CT3[j][l][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr-T][k];
 //printf("%f\n", C[j][t]);
 
 } else{
-  C[l][j][t] += Br[j][l][t1][k]*Br[j][l][t_pr][k];
-  CT1[l][j][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr][k];
-  CT2[l][j][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr][k];
-  CT3[l][j][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr][k];
+  C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr][k];
+  CT1[j][l][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr][k];
+  CT2[j][l][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr][k];
+  CT3[j][l][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr][k];
 //printf("%f\n", C[j][t]);
 
 }
   }
 //printf("\n");
 }
-C[l][j][t]  = (double) C[l][j][t]/T;
-CT1[l][j][t]  = (double) CT1[l][j][t]/T;
-CT2[l][j][t]  = (double) CT2[l][j][t]/T;
-CT3[l][j][t]  = (double) CT3[l][j][t]/T;
+C[j][l][t]  = (double) C[j][l][t]/T;
+CT1[j][l][t]  = (double) CT1[j][l][t]/T;
+CT2[j][l][t]  = (double) CT2[j][l][t]/T;
+CT3[j][l][t]  = (double) CT3[j][l][t]/T;
 }
-
 }
 }
 
@@ -172,12 +203,11 @@ for (int t = 0; t < T; t++) {
  CT2_unc[l][t]=0;
  CT3_avg[l][t]=0;
  CT3_unc[l][t]=0;
-
 for(int j =0; j < n_meas; j++){
-C_avg[l][t]+= C[l][j][t];
-CT1_avg[l][t]+= CT1[l][j][t];
-CT2_avg[l][t]+= CT2[l][j][t];
-CT3_avg[l][t]+= CT3[l][j][t];
+C_avg[l][t]+= C[j][l][t];
+CT1_avg[l][t]+= CT1[j][l][t];
+CT2_avg[l][t]+= CT2[j][l][t];
+CT3_avg[l][t]+= CT3[j][l][t];
 }
 
 
@@ -187,10 +217,10 @@ CT2_avg[l][t] = CT2_avg[l][t]/ n_meas;
 CT3_avg[l][t] = CT3_avg[l][t]/ n_meas;
 
 for(int j =0; j < n_meas; j++){
-C_unc[l][t] += C[l][j][t]*C[l][j][t] - C_avg[l][t]*C_avg[l][t];
-CT1_unc[l][t] += CT1[l][j][t]*CT1[l][j][t] - CT1_avg[l][t]*CT1_avg[l][t];
-CT2_unc[l][t] += CT2[l][j][t]*CT2[l][j][t] - CT2_avg[l][t]*CT2_avg[l][t];
-CT3_unc[l][t] += CT3[l][j][t]*CT3[l][j][t] - CT3_avg[l][t]*CT3_avg[l][t];
+C_unc[l][t] += C[j][l][t]*C[j][l][t] - C_avg[l][t]*C_avg[l][t];
+CT1_unc[l][t] += CT1[j][l][t]*CT1[j][l][t] - CT1_avg[l][t]*CT1_avg[l][t];
+CT2_unc[l][t] += CT2[j][l][t]*CT2[j][l][t] - CT2_avg[l][t]*CT2_avg[l][t];
+CT3_unc[l][t] += CT3[j][l][t]*CT3[j][l][t] - CT3_avg[l][t]*CT3_avg[l][t];
 
 }
 //printf("C_avg[%d]: %f\n",t,cavg );
@@ -255,5 +285,73 @@ fprintf(O1minusf, "\n" );
 }
 
 fclose(O1minusf);
+
+}
+
+
+void allocate_4d(int count3, int count2, int count1, int count0, double *****data)
+{
+    int i, j, k, l;
+    *data = (double ****)malloc(count3*sizeof((*data)));
+    if ((*data) != NULL) {
+        for(i = 0; i < count3; i++) {
+            (*data)[i] = (double ***)malloc(count2*sizeof((*data)));
+            if ((*data)[i] != NULL) {
+                for(j = 0; j < count2; j++) {
+                    (*data)[i][j] = (double **)malloc(count1*sizeof((*data)));
+                    if ((*data)[i][j] != NULL) {
+                        for (k = 0; k < count1; k++) {
+                            (*data)[i][j][k] = (double *)malloc(count0*sizeof((*data)));
+                            if ((*data)[i][j][k] == NULL) {
+                               printf("Mem allocation failed\n");
+                               exit(1);
+                            }
+                        }
+                    }
+                    else {
+                         printf("Mem allocation failed\n");
+                         exit(1);
+                         }
+                }
+            }
+            else {
+                 printf("Mem allocation failed\n");
+                 exit(1);
+                 }
+        }
+    }
+    else {
+          printf("Mem allocation failed\n");
+          exit(1);
+    }
+}
+    void allocate_3d(int count2, int count1, int count0, double ****data)
+    {
+        int i, j, k;
+
+        *data = (double ***)malloc(count2*sizeof((*data)));
+        if ((*data) != NULL) {
+            for(i = 0; i < count2; i++) {
+                (*data)[i] = (double **)malloc(count1*sizeof((*data)));
+                if ((*data)[i] != NULL) {
+                    for(j = 0; j < count1; j++) {
+                        (*data)[i][j] = (double *)malloc(count0*sizeof((*data)));
+                        if ((*data)[i][j] == NULL) {
+                           printf("Mem allocation failed\n");
+                           exit(1);
+                        }
+                    }
+                }
+                else {
+                     printf("Mem allocation failed\n");
+                     exit(1);
+                     }
+            }
+        }
+        else {
+              printf("Mem allocation failed\n");
+              exit(1);
+        }
+
 
 }

@@ -56,8 +56,9 @@ for i in range(h):
     Op_type = biarray[i][1]
 
     for t in range(Nt):
-        C[t] = biarray[i][2*t+3]
-        C_unc[t] = biarray[i][2*t+4]
+        C[t] = biarray[i][2*t+3]/ biarray[i][3];
+        #C_unc[t] = biarray[i][2*t+4]
+        C_unc[t] = np.sqrt(biarray[i][2*t+4]*biarray[i][2*t+4] +C[t]*C[t]*biarray[i][4]*biarray[i][4])/biarray[i][3]
 
     print(Nt,B,K,L)
     print('C=',C)
@@ -68,7 +69,7 @@ for i in range(h):
     O1minus_path = 'O1minus/Nt'+str(Nt)+'B'+str(B)+'K'+str(K)+'L'+str(L)+'n_sm'+str(n_smear)+'Op_'+str(Op_type)+'.png'
     axc.errorbar(Tl,C,yerr=C_unc, fmt='x', markersize=10)
     axc.set_ylabel(r'C(t)')
-#    axc.set_yscale("log")
+    axc.set_yscale("log")
     axc.set_xlabel('t')
     fig1.savefig(O1minus_path, dpi=100)
     plt.close(fig1)
