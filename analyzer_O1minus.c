@@ -81,6 +81,8 @@ if (O1minusf == NULL)
             if(in_file->d_name[9]==50)(T=12);
           }
 
+          printf("Nt=%d\n",T );
+
           double B[T][3];
           double T1[T][3];
           double T2[T][3];
@@ -136,8 +138,6 @@ if (O1minusf == NULL)
           allocate_4d(n_meas,n_smear,T,3,&T3r);
           allocate_3d(n_meas,n_smear,T,&CT3);
 
-          C[0][0][0] =0;
-
           for(int j =0; j < n_meas; j++){
 //fread(&Br[j], sizeof(B),1,entry_file);
 
@@ -151,17 +151,39 @@ for (int t = 0; t < T; t++) {
 
   for (int k = 0; k < 3; k++) {
     fread(&Br[j][l][t][k],sizeof(double),1,entry_file);
-    fread(&T1r[j][l][t][k],sizeof(double),1,entry_file);
-    fread(&T2r[j][l][t][k],sizeof(double),1,entry_file);
-    fread(&T3r[j][l][t][k],sizeof(double),1,entry_file);
-   // printf("%f\n",Br[j][l][t][k] );
-
+//  printf("B[%d][%d][%d][%d] = %f \n ", j,l,t,k, Br[j][l][t][k] );
   }
 }
 
 for (int t = 0; t < T; t++) {
+
   for (int k = 0; k < 3; k++) {
-    for (int t1 = 0; t1 < T; t1++){
+  fread(&T1r[j][l][t][k],sizeof(double),1,entry_file);
+//    printf("T1[%d][%d][%d][%d] = %f \n ", j,l,t,k, T1r[j][l][t][k] );
+}
+}
+for (int t = 0; t < T; t++) {
+  for (int k = 0; k < 3; k++) {
+
+   fread(&T2r[j][l][t][k],sizeof(double),1,entry_file);
+
+//     printf("T2[%d][%d][%d][%d] = %f \n", j,l,t,k, T2r[j][l][t][k] );
+}
+}
+for (int t = 0; t < T; t++) {
+  for (int k = 0; k < 3; k++) {
+   fread(&T3r[j][l][t][k],sizeof(double),1,entry_file);
+
+//     printf("T3[%d][%d][%d][%d] = %f \n", j,l,t,k, T3r[j][l][t][k] );
+}
+}
+  // printf("%f\n",Br[j][l][t][k] );
+
+
+for (int t = 0; t < T; t++) {
+  for (int t1 = 0; t1 < T; t1++){
+    for (int k = 0; k < 3; k++) {
+
       int t_pr = t1 +t;
 if(t_pr > T -1){
 C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
@@ -217,18 +239,18 @@ CT2_avg[l][t] = CT2_avg[l][t]/ n_meas;
 CT3_avg[l][t] = CT3_avg[l][t]/ n_meas;
 
 for(int j =0; j < n_meas; j++){
-C_unc[l][t] += C[j][l][t]*C[j][l][t] - C_avg[l][t]*C_avg[l][t];
-CT1_unc[l][t] += CT1[j][l][t]*CT1[j][l][t] - CT1_avg[l][t]*CT1_avg[l][t];
-CT2_unc[l][t] += CT2[j][l][t]*CT2[j][l][t] - CT2_avg[l][t]*CT2_avg[l][t];
-CT3_unc[l][t] += CT3[j][l][t]*CT3[j][l][t] - CT3_avg[l][t]*CT3_avg[l][t];
+C_unc[l][t] += (C[j][l][t] - C_avg[l][t])*(C[j][l][t] - C_avg[l][t]);
+CT1_unc[l][t] += (CT1[j][l][t] - CT1_avg[l][t])*(CT1[j][l][t] - CT1_avg[l][t]);
+CT2_unc[l][t] += (CT2[j][l][t] - CT2_avg[l][t])*(CT2[j][l][t] - CT2_avg[l][t]);
+CT3_unc[l][t] += (CT3[j][l][t] - CT3_avg[l][t])*(CT3[j][l][t] - CT3_avg[l][t]);
 
 }
 //printf("C_avg[%d]: %f\n",t,cavg );
 
-C_unc[l][t] = sqrt(C_unc[l][t]/(n_meas-1.));
-CT1_unc[l][t] = sqrt(CT1_unc[l][t]/(n_meas-1.));
-CT2_unc[l][t] = sqrt(CT2_unc[l][t]/(n_meas-1.));
-CT3_unc[l][t] = sqrt(CT3_unc[l][t]/(n_meas-1.));
+C_unc[l][t] = sqrt(C_unc[l][t]/((n_meas-1.)*n_meas));
+CT1_unc[l][t] = sqrt(CT1_unc[l][t]/((n_meas-1.)*n_meas));
+CT2_unc[l][t] = sqrt(CT2_unc[l][t]/((n_meas-1.)*n_meas));
+CT3_unc[l][t] = sqrt(CT3_unc[l][t]/((n_meas-1.)*n_meas));
 
 }
 }
@@ -246,6 +268,7 @@ fprintf(O1minusf, "%f ",C_unc[l][t] );
 }
 fprintf(O1minusf, "\n" );
 }
+
 
 
 for(int l=0; l< n_smear;l++ ){
@@ -282,6 +305,8 @@ fprintf(O1minusf, "%f ",CT3_unc[l][t] );
 }
 fprintf(O1minusf, "\n" );
 }
+
+
 }
 
 fclose(O1minusf);

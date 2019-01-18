@@ -4,10 +4,10 @@ import numpy as np
 import re
 import os
 
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 #rc('text', usetex=True)
 
-n_op = 4
+n_op = 3
 smear = 5
 
 def file_len(fname):
@@ -16,17 +16,17 @@ def file_len(fname):
             pass
     return i + 1
 
-h = file_len('O1minus_results.dat')
+h = file_len('O0plus_results.dat')
 
 print(h)
 
-os.makedirs('O1minus', exist_ok=True)
+os.makedirs('O0plus', exist_ok=True)
 
 a =0
 
 biarray = [[0 for x in range(25)] for y in range(h)]
 
-with open('O1minus_results.dat','r') as f:
+with open('O0plus_results.dat','r') as f:
     for line in f:
     #    print(line.split())
         array = line.split()
@@ -58,8 +58,8 @@ for k in range(n_op):
     K = re.search(r'(.*)K(.*)_L',biarray[i][0]).group(2)
     L = re.search(r'(.*)L(.*).bin',biarray[i][0]).group(2)
 
-    O1minus_path = 'O1minus/Nt'+str(Nt)+'B'+str(B)+'K'+str(K)+'L'+str(L)+'Op_'+str(Op_type)+'.png'
-    O1minus_m_path = 'O1minus/M_eff_Nt'+str(Nt)+'B'+str(B)+'K'+str(K)+'L'+str(L)+'Op_'+str(Op_type)+'.png'
+    O0plus_path = 'O0plus/Nt'+str(Nt)+'B'+str(B)+'K'+str(K)+'L'+str(L)+'Op_'+str(Op_type)+'.png'
+    O0plus_m_path = 'O0plus/M_eff_Nt'+str(Nt)+'B'+str(B)+'K'+str(K)+'L'+str(L)+'Op_'+str(Op_type)+'.png'
 
     for j in range(smear):
         i = j +smear*k
@@ -110,8 +110,8 @@ for k in range(n_op):
         axm.legend()
 
 
-    fig1.savefig(O1minus_path, dpi=100)
+    fig1.savefig(O0plus_path, dpi=100)
     plt.close(fig1)
 
-    figm.savefig(O1minus_m_path, dpi=100)
+    figm.savefig(O0plus_m_path, dpi=100)
     plt.close(figm)
