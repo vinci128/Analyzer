@@ -15,6 +15,8 @@
 void allocate_4d(int count3, int count2, int count1, int count0, double *****data);
 void allocate_3d(int count2, int count1, int count0, double ****data);
 
+void free_4d(int count3, int count2, int count1, int count0, double *****data);
+void free_3d(int count2, int count1, int count0, double ****data);
 
 int main(int argc, char **argv)
 {
@@ -81,7 +83,7 @@ if (O1minusf == NULL)
             if(in_file->d_name[9]==50)(T=12);
           }
 
-          printf("Nt=%d\n",T );
+          printf("Nt = %d\n",T );
 
           double B[T][3];
           double T1[T][3];
@@ -89,6 +91,7 @@ if (O1minusf == NULL)
           double T3[T][3];
 
           int n_meas = (int) size/ (sizeof(B)*n_smear*4);
+          printf("n_meas = %d\n",n_meas );
 
           //Br = (double*)malloc(n_meas, sizeof(B));
           //double Br[n_meas][n_smear][T][3];
@@ -180,6 +183,8 @@ for (int t = 0; t < T; t++) {
   // printf("%f\n",Br[j][l][t][k] );
 
 
+
+
 for (int t = 0; t < T; t++) {
   for (int t1 = 0; t1 < T; t1++){
     for (int k = 0; k < 3; k++) {
@@ -210,6 +215,19 @@ CT3[j][l][t]  = (double) CT3[j][l][t]/T;
 }
 }
 }
+
+
+free_4d(n_meas,n_smear,T,3,&Br);
+
+
+free_4d(n_meas,n_smear,T,3,&T1r);
+
+
+free_4d(n_meas,n_smear,T,3,&T2r);
+
+
+free_4d(n_meas,n_smear,T,3,&T3r);
+
 
 for(int l=0; l< n_smear;l++ ){
 
@@ -254,6 +272,11 @@ CT3_unc[l][t] = sqrt(CT3_unc[l][t]/((n_meas-1.)*n_meas));
 
 }
 }
+
+free_3d(n_meas,n_smear,T,&C);
+free_3d(n_meas,n_smear,T,&CT1);
+free_3d(n_meas,n_smear,T,&CT2);
+free_3d(n_meas,n_smear,T,&CT3);
 
 chdir("/home/vincenzo/Analyzer");
 
@@ -377,6 +400,55 @@ void allocate_4d(int count3, int count2, int count1, int count0, double *****dat
               printf("Mem allocation failed\n");
               exit(1);
         }
+
+
+}
+
+
+void free_4d(int count3, int count2, int count1, int count0, double *****data)
+{
+    int i, j, k;
+
+        for(i = 0; i < count3; i++) {
+                for(j = 0; j < count2; j++) {
+                      for (k = 0; k < count1; k++) {
+                        free((*data)[i][j][k]);
+                        }
+                      }
+                    }
+
+
+for(i = 0; i < count3; i++) {
+        for(j = 0; j < count2; j++) {
+                    free((*data)[i][j]);
+}
+}
+
+for(i = 0; i < count3; i++) {
+                free ((*data)[i]);
+}
+              free(*data);
+
+
+}
+
+
+void free_3d(int count2, int count1, int count0, double ****data)
+{
+    int i, j, k;
+
+  //  *data = (double ***)malloc(count2*sizeof((*data)));
+  for(i = 0; i < count2; i++) {
+    for(j = 0; j < count1; j++) {
+                free((*data)[i][j]);
+  }
+  }
+
+  for(i = 0; i < count2; i++) {
+            free ((*data)[i]);
+  }
+
+          free(*data);
 
 
 }

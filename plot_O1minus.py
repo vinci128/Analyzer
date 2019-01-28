@@ -64,20 +64,20 @@ for k in range(n_op):
     for j in range(smear):
         i = j +smear*k
 
-        Tl = list(range(Nt))
-        C = list(range(Nt))
-        C_unc = list(range(Nt))
-        Tlm = list(range(Nt-1))
-        m = list(range(Nt-1))
-        m_unc = list(range(Nt-1))
+        Tl = list(range(Nt-1))
+        C = list(range(Nt-1))
+        C_unc = list(range(Nt-1))
+        Tlm = list(range(Nt-2))
+        m = list(range(Nt-2))
+        m_unc = list(range(Nt-2))
         n_smear = int(biarray[i][2])
 
 
-        for t in range(Nt):
-            C[t] = biarray[i][2*t+3]/ biarray[i][3];
-        #C_unc[t] = biarray[i][2*t+4]
-            C_unc[t] = np.sqrt(biarray[i][2*t+4]*biarray[i][2*t+4] +C[t]*C[t]*biarray[i][4]*biarray[i][4])/biarray[i][3]
         for t in range(Nt-1):
+            C[t] = biarray[i][2*t+5]/ biarray[i][3];
+        #C_unc[t] = biarray[i][2*t+4]
+            C_unc[t] = np.sqrt(biarray[i][2*t+6]*biarray[i][2*t+6] +C[t]*C[t]*biarray[i][4]*biarray[i][4])/biarray[i][3]
+        for t in range(Nt-2):
             m[t] = np.log(C[t]/C[t+1])
             m_unc[t] = C_unc[t]/C[t] + C_unc[t+1]/C[t+1]
 
@@ -92,7 +92,7 @@ for k in range(n_op):
 
         axc.errorbar(Tl,C,yerr=C_unc, fmt='x', markersize=10, label= n_smear )
         axc.set_ylabel(r'C(t)')
-        axc.set_yscale("log")
+        #axc.set_yscale("log")
         axc.set_xlabel('t')
         axc.legend()
 

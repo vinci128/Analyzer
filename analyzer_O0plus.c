@@ -15,6 +15,8 @@
 void allocate_4d(int count3, int count2, int count1, int count0, double *****data);
 void allocate_3d(int count2, int count1, int count0, double ****data);
 
+void free_4d(int count3, int count2, int count1, int count0, double *****data);
+void free_3d(int count2, int count1, int count0, double ****data);
 
 int main(int argc, char **argv)
 {
@@ -87,6 +89,8 @@ if (O0plusf == NULL)
 
 
           int n_meas = (int) size/ (sizeof(SC1)*n_smear*3);
+
+          printf("n_meas = %d \n", n_meas );
 
           //Br = (double*)malloc(n_meas, sizeof(B));
           //double Br[n_meas][n_smear][T][3];
@@ -167,6 +171,15 @@ C3[j][l][t]  = (double) C3[j][l][t]/T;
 }
 }
 
+
+
+free_3d(n_meas,n_smear,T,&SC1r);
+
+free_3d(n_meas,n_smear,T,&SC2r);
+
+free_3d(n_meas,n_smear,T,&SC3r);
+
+
 for(int l=0; l< n_smear;l++ ){
 
 for (int t = 0; t < T; t++) {
@@ -204,6 +217,12 @@ C3_unc[l][t] = sqrt(C3_unc[l][t]/((n_meas-1.)*n_meas));
 
 }
 }
+
+free_3d(n_meas,n_smear,T,&C1);
+
+free_3d(n_meas,n_smear,T,&C2);
+
+free_3d(n_meas,n_smear,T,&C3);
 
 chdir("/home/vincenzo/Analyzer");
 
@@ -312,6 +331,54 @@ void allocate_4d(int count3, int count2, int count1, int count0, double *****dat
               printf("Mem allocation failed\n");
               exit(1);
         }
+
+
+}
+
+void free_4d(int count3, int count2, int count1, int count0, double *****data)
+{
+    int i, j, k;
+
+  //  *data = (double ***)malloc(count2*sizeof((*data)));
+  for(i = 0; i < count3; i++) {
+          for(j = 0; j < count2; j++) {
+                for (k = 0; k < count1; k++) {
+                      free((*data)[i][j][k]);
+                  }
+                }
+              }
+
+
+for(i = 0; i < count3; i++) {
+  for(j = 0; j < count2; j++) {
+              free((*data)[i][j]);
+}
+}
+
+for(i = 0; i < count3; i++) {
+          free ((*data)[i]);
+}
+
+        free(*data);
+
+}
+
+
+void free_3d(int count2, int count1, int count0, double ****data)
+{
+    int i, j, k;
+
+    for(i = 0; i < count2; i++) {
+      for(j = 0; j < count1; j++) {
+                  free((*data)[i][j]);
+    }
+    }
+
+    for(i = 0; i < count2; i++) {
+              free ((*data)[i]);
+    }
+
+            free(*data);
 
 
 }
