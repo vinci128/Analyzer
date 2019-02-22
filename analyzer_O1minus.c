@@ -141,7 +141,7 @@ if (O1minusf == NULL)
           allocate_4d(n_meas,n_smear,T,3,&T3r);
           allocate_3d(n_meas,n_smear,T,&CT3);
 
-          for(int j =0; j < n_meas; j++){
+          for(int j =0; j < 1; j++){
 //fread(&Br[j], sizeof(B),1,entry_file);
 
 for(int l=0; l< n_smear;l++ ){
@@ -154,7 +154,7 @@ for (int t = 0; t < T; t++) {
 
   for (int k = 0; k < 3; k++) {
     fread(&Br[j][l][t][k],sizeof(double),1,entry_file);
-//  printf("B[%d][%d][%d][%d] = %f \n ", j,l,t,k, Br[j][l][t][k] );
+ printf("B[%d][%d][%d][%d] = %f \n ", j,l,t,k, Br[j][l][t][k] );
   }
 }
 
@@ -162,7 +162,7 @@ for (int t = 0; t < T; t++) {
 
   for (int k = 0; k < 3; k++) {
   fread(&T1r[j][l][t][k],sizeof(double),1,entry_file);
-//    printf("T1[%d][%d][%d][%d] = %f \n ", j,l,t,k, T1r[j][l][t][k] );
+   printf("T1[%d][%d][%d][%d] = %f \n ", j,l,t,k, T1r[j][l][t][k] );
 }
 }
 for (int t = 0; t < T; t++) {
@@ -170,14 +170,14 @@ for (int t = 0; t < T; t++) {
 
    fread(&T2r[j][l][t][k],sizeof(double),1,entry_file);
 
-//     printf("T2[%d][%d][%d][%d] = %f \n", j,l,t,k, T2r[j][l][t][k] );
+     printf("T2[%d][%d][%d][%d] = %f \n", j,l,t,k, T2r[j][l][t][k] );
 }
 }
 for (int t = 0; t < T; t++) {
   for (int k = 0; k < 3; k++) {
    fread(&T3r[j][l][t][k],sizeof(double),1,entry_file);
 
-//     printf("T3[%d][%d][%d][%d] = %f \n", j,l,t,k, T3r[j][l][t][k] );
+   printf("T3[%d][%d][%d][%d] = %f \n", j,l,t,k, T3r[j][l][t][k] );
 }
 }
   // printf("%f\n",Br[j][l][t][k] );
@@ -195,18 +195,18 @@ C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr-T][k];
 CT1[j][l][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr-T][k];
 CT2[j][l][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr-T][k];
 CT3[j][l][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr-T][k];
-//printf("%f\n", C[j][t]);
+printf("%f\n", CT1[j][l][t]);
 
 } else{
   C[j][l][t] += Br[j][l][t1][k]*Br[j][l][t_pr][k];
   CT1[j][l][t] += T1r[j][l][t1][k]*T1r[j][l][t_pr][k];
   CT2[j][l][t] += T2r[j][l][t1][k]*T2r[j][l][t_pr][k];
   CT3[j][l][t] += T3r[j][l][t1][k]*T3r[j][l][t_pr][k];
-//printf("%f\n", C[j][t]);
+printf("%f\n", CT1[j][l][t]);
 
 }
   }
-//printf("\n");
+printf("\n");
 }
 C[j][l][t]  = (double) C[j][l][t]/T;
 CT1[j][l][t]  = (double) CT1[j][l][t]/T;

@@ -79,7 +79,7 @@ for k in range(n_op):
             C_unc[t] = np.sqrt(biarray[i][2*t+6]*biarray[i][2*t+6] +C[t]*C[t]*biarray[i][4]*biarray[i][4])/biarray[i][3]
         for t in range(Nt-2):
             m[t] = np.log(C[t]/C[t+1])
-            m_unc[t] = C_unc[t]/C[t] + C_unc[t+1]/C[t+1]
+            m_unc[t] = abs(C_unc[t]/C[t]) + abs(C_unc[t+1]/C[t+1])
 
         print(Nt,B,K,L)
         print('C=',C)
