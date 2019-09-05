@@ -9,3 +9,4 @@ O0plus_output_files_1/
 O0plus_output_files_old/
 *.jpg
 *.tar.gz
+.ipynb*
