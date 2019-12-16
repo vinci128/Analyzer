@@ -12,6 +12,7 @@
 *******************************************************************************/
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include "statistics.h"
 //#include "error.h"
@@ -108,8 +109,8 @@ double sigma(int n,double a[],double *tau,int *flag)
    double *g,*t,dt,del,var,taumax;
 
    tmax=n/30+1;
-   g=malloc(tmax*sizeof(double));
-   t=malloc(tmax*sizeof(double));
+   g=(double *)malloc(tmax*sizeof(double));
+   t=(double *)malloc(tmax*sizeof(double));
 
    auto_corr(n,a,tmax,g);
 
