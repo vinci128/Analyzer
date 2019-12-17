@@ -7,12 +7,12 @@
 #include "statistics.h"
 
 
-const int Nt =16;
-const int Nx =16;
-const int Ny =16;
-const int Nz =16;
+const int Nt =8;
+const int Nx =8;
+const int Ny =8;
+const int Nz =8;
 
-const int n_meas=28000;
+const int n_meas=20000;
 const int n_smear=5;
 const int n_op=4;
 
@@ -37,6 +37,11 @@ std::vector<std::vector<std::vector<double> > > O1(n_meas,std::vector<std::vecto
 std::vector<std::vector<std::vector<double> > > O2(n_meas,std::vector<std::vector<double> >(n_smear,std::vector<double>(Nt,0)));
 std::vector<std::vector<std::vector<double> > > O3(n_meas,std::vector<std::vector<double> >(n_smear,std::vector<double>(Nt,0)));
 std::vector<std::vector<std::vector<double> > > O_sq(n_meas,std::vector<std::vector<double> >(n_smear,std::vector<double>(Nt,0)));
+
+std::vector<std::vector<double>> O_avg(n_smear,std::vector<double> (Nt,0));
+std::vector<std::vector<double>> O1_avg(n_smear,std::vector<double> (Nt,0));
+std::vector<std::vector<double>> O2_avg(n_smear,std::vector<double> (Nt,0));
+std::vector<std::vector<double>> O3_avg(n_smear,std::vector<double> (Nt,0));
 
  // double c_var[n_meas][n_mat][n_mat][Nt];
  std::vector<std::vector<std::vector<std::vector<double>> > > c_var(n_meas,std::vector<std::vector<std::vector<double> > >(n_mat,std::vector<std::vector<double> > (n_mat,std::vector<double> (Nt,0))));
@@ -76,17 +81,18 @@ double lambda=1;
 double kappa;
 kappa= 0.65;
 
-sprintf(O1minus_name,"O1minus_output_files_new/output_Nt%d_Nx%d_Ny%d_Nz%d_B%f_K%f_L%f_full.bin",Nt,Nx,Ny,Nz, beta, kappa,lambda );
+sprintf(O1minus_name,"O1minus_output_files_new/output_Nt%d_Nx%d_Ny%d_Nz%d_B%f_K%f_L%f.bin",Nt,Nx,Ny,Nz, beta, kappa,lambda );
 sprintf(out_avg_name,"cross_new/matrix_c_L%d_k%f.txt",Nt,kappa);
 sprintf(out_err_name,"cross_new/matrix_c_L%d_k%f_err.txt",Nt,kappa);
+
 
 std::cout << O1minus_name << '\n';
 std::ifstream O1minusf;
 O1minusf.open(O1minus_name,std::ios::in|std::ios::binary);
+
 std::ofstream outf;
-outf.open(out_avg_name,std::ios::out);
 std::ofstream outf_err;
-outf_err.open(out_err_name,std::ios::out);
+
 std::cout << "Br =" << Br[n_meas-1][n_smear-1][Nt-1][2] << '\n';
 std::cout << "size of" << sizeof(double) << '\n';
 for(int n=0;n<n_meas;n++){
@@ -139,6 +145,33 @@ for(int n=0; n<n_meas;n++){
 
 std::cout << O[n_meas-1][0][0] << '\n';
 
+for (int ns = 0; ns < n_smear; ns++) {
+  for (int t = 0; t < Nt; t++) {
+    for (int n = 0; n < n_meas; n++) {
+      vec[n]=O[n][ns][t];
+    }
+    O_avg[ns][t]=average(n_meas,vec);
+    for (int n = 0; n < n_meas; n++) {
+      vec[n]=O1[n][ns][t];
+    }
+    O1_avg[ns][t]=average(n_meas,vec);
+    for (int n = 0; n < n_meas; n++) {
+      vec[n]=O2[n][ns][t];
+    }
+    O2_avg[ns][t]=average(n_meas,vec);
+    for (int n = 0; n < n_meas; n++) {
+      vec[n]=O3[n][ns][t];
+    }
+    O3_avg[ns][t]=average(n_meas,vec);
+    for (int n = 0; n < n_meas; n++) {
+      O[n][ns][t] -= O_avg[ns][t];
+      O1[n][ns][t] -= O1_avg[ns][t];
+      O2[n][ns][t] -= O2_avg[ns][t];
+      O3[n][ns][t] -= O3_avg[ns][t];
+    }
+  }
+}
+
 // for(int n=0; n<n_meas;n++){
 //   for(int i=0;i<n_mat;i++){
 //     for(int j=0;j<n_mat;j++){
@@ -189,12 +222,21 @@ std::cout << c_var[n_meas-1][0][0][0] << '\n';
         }
 
       c_avg[i][k][t]=average(n_meas,vec);
-      c_err[i][k][t]=sigma(n_meas,vec,tau,flag);
+      //c_err[i][k][t]=sigma(n_meas,vec,tau,flag);
+      c_err[i][k][t]=sigma0(n_meas,vec);
+      // std::cout << "tau =" << *tau << '\n';
+      // std::cout << "flag =" << *flag << '\n';
     }
   }
 }
 
 std::cout << "Error and uncertainties matrices obtained." << '\n';
+
+
+
+outf.open(out_avg_name,std::ios::out);
+
+outf_err.open(out_err_name,std::ios::out);
 
 for(int t=0;t<Nt;t++){
   for(int i=0;i<n_mat;i++){
