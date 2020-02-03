@@ -16,16 +16,16 @@ double sigma0(int n_meas, std::vector<double> vec);
 int main(int argc, char *argv[]){
 
 
-  int Nt =8;
-  int Nx =8;
-  int Ny =8;
-  int Nz =8;
+  int Nt =24;
+  int Nx =24;
+  int Ny =24;
+  int Nz =24;
 
-  int n_meas=480000;
-  int n_smear=5;
+  int n_meas=9993;
+  int n_smear=6;
   int n_op=4;
 
-  int n_mat= 20;
+  int n_mat= n_smear*n_op;
 
   std::vector<std::vector<std::vector<std::vector<double> > > > Br(n_meas,std::vector<std::vector<std::vector<double> > >(n_smear,std::vector<std::vector<double> > (Nt,std::vector<double> (3,0))));
   std::vector<std::vector<std::vector<std::vector<double> > > > B2r(n_meas,std::vector<std::vector<std::vector<double> > >(n_smear,std::vector<std::vector<double> > (Nt,std::vector<double> (3,0))));
@@ -76,7 +76,7 @@ int n_max;
 int size;
 
 
-sprintf(O1minus_name,"O1minus_output_files_new/output_Nt%d_Nx%d_Ny%d_Nz%d_B%f_K%f_L%f_full.bin",Nt,Nx,Ny,Nz, beta, kappa,lambda );
+sprintf(O1minus_name,"O1minus_output_files_new/output_Nt%d_Nx%d_Ny%d_Nz%d_B%f_K%f_L%f_frodo.bin",Nt,Nx,Ny,Nz, beta, kappa,lambda );
 sprintf(out_avg_name,"cross_new/matrix_c_L%d_k%f.txt",Nt,kappa);
 sprintf(out_err_name,"cross_new/matrix_c_L%d_k%f_err.txt",Nt,kappa);
 
@@ -95,8 +95,9 @@ std::ofstream outf_err;
 
 // std::cout << "Br =" << Br[n_meas-1][n_smear-1][Nt-1][2] << '\n';
 // std::cout << "size of" << sizeof(double) << '\n';
-n_max = (int) size/(sizeof(B_p)*n_op*n_smear);
+n_max = (int) size/(sizeof(B_p)*n_op*(n_smear));
 std::cout << "Max measurements of file =" << n_max << '\n';
+
 
 if(n_meas> n_max){
   std::cout << "[WARNING] The number of measurements exceeds the file size" << '\n';
@@ -111,11 +112,16 @@ for(int n=0;n<n_meas;n++){
     O1minusf.read((char*)&B_2p, sizeof(B_2p));
     for(int t=0;t<Nt;t++){
       for(int k=0;k<3;k++){
+        if(isnan(Br[n][ns][t][k])){
+          printf("Found nan at measurement %d\n",n);
+          continue;
+        }
         Br[n][ns][t][k]=B_p[t][k];
         B2r[n][ns][t][k]=B2[t][k];
         B2pr[n][ns][t][k]=B_2p[t][k];
         Bphir[n][ns][t][k]=Bphi[t][k];
       }
+
     }
 
   }
@@ -177,7 +183,7 @@ for (int ns = 0; ns < n_smear; ns++) {
   for(int i=0;i<n_smear;i++){
     std::cout << "i= " <<i << '\n';
     for(int j=0;j<n_smear;j++){
-      std::cout << "j= " <<j <<'\n';
+      std::cout << "  j= " <<j <<'\n';
       for(int t=0;t<Nt;t++){
         // std::cout << "t= " <<t << '\n';
 
